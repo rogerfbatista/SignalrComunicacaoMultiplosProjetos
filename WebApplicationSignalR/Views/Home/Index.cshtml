@@ -1,0 +1,73 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<h2>SignalR Robo Site</h2>
+
+<form>
+    <div class="form-group">
+        <label for="exampleInputEmail1">Enviar Mensagem Cliente</label>
+        <input type="text" class="form-control" id="txtmsg" value="processar:xpto">
+    </div>
+    <div class="form-group">
+        <input type="button" class="btn btn-block" value="Iniciar trabalho do robo" onclick="IniciarRobo()">
+    </div>
+
+    <div class="form-group">
+        <h4>Notificar</h4>
+        <br />
+        <div id="divNotificar"></div>
+    </div>
+
+</form>
+
+
+@Scripts.Render("~/bundles/jquery")
+
+    
+
+<script type="text/javascript">
+
+    function IniciarRobo() {
+
+        return $.ajax({
+            type: "POST",
+            url: "http://localhost:1246/Home/Enviar",
+            data: { 'mensagem': $("#txtmsg").val() },
+            done: function (data) {
+                console.log(data)
+            }
+        })
+    }
+
+    $(function () {
+        debugger;
+        var contar = 0;
+
+        var hub = $.connection.hubRobo;
+
+        hub.client.AddMensagemClienteJavaScript = function (mensagem) {
+
+            if (mensagem.indexOf("Ocupados") > 0) {
+                contar++;
+            } else {
+
+                if (contar > 0) {
+                    $("#divNotificar").append("Robos Ocupados " + contar + "<br/>");
+                }
+
+                $("#divNotificar").append(mensagem  +'<br/>');
+                contar = 0;
+            }
+
+
+        }
+
+        $.connection.hub.start().done(function () {
+            console.log("logado");
+        })
+
+
+    });
+
+</script>
